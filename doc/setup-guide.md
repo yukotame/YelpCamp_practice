@@ -33,6 +33,7 @@ npm install express mongoose ejs ejs-mate method-override dotenv \
   joi sanitize-html express-mongo-sanitize helmet \
   mongodb
 ```
+npm i express mongoose@5 ejs
 
 ### 3. 環境変数設定
 

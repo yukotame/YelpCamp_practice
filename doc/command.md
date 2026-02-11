@@ -19,14 +19,17 @@ npm init -y
 # Git初期化
 git init
 
-# .gitignore作成
-echo node_modules > .gitignore
-echo .env >> .gitignore
-echo .DS_Store >> .gitignore
+echo "# YelpCamp_practice" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/yukotame/YelpCamp_practice.git
+git push -u origin main
 
-# GitHubリポジトリ作成後、リモート追加（URLは自分のリポジトリに変更）
-git remote add origin https://github.com/<ユーザー名>/YelpCamp.git
-```
+git remote add origin https://github.com/yukotame/YelpCamp_practice.git
+git branch -M main
+git push -u origin main
 
 ---
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h1>キャンプ場登録</h1>
+    <form action="/campgrounds" method="POST">
+        <div>
+            <label for="title">キャンプ場名</label>
+            <input type="text" id="title" name="campground[title]" placeholder="例：富士山キャンプ場"> 
+        </div>
+        <div>
+            <label for="location">場所</label>
+            <input type="text" id="location" name="campground[location]" placeholder="例：北海道"> 
+        </div>
+
+
+        <button type="submit">登録</button>
+    </form>
+
+    
+</body>
+</html>
