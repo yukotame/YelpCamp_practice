@@ -1,11 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>キャンプ場編集ページ</title>
-</head>
-<body>
-    
-</body>
-</html>
+<% layout('layouts/boilerplate') %>
+
+<!-- Bootstrapのバリデーションチェック form にnovalidate class="needs-validation" -->
+<!-- Bootstrapのバリデーションチェック input にrequired とscriptを追加 -->
+<div class="row">
+    <h1 class="text-center">キャンプ場編集</h1>
+    <div class="offset-3 col-6">
+        <form action="/campgrounds/<%= campGround._id %>?_method=PUT" method="POST" novalidate class="needs-validation">
+            <div class="mb-3">
+                <!-- Form control -->
+                <label for="title" class="form-label">キャンプ場名</label>
+                <input type="text" class="form-control" id="title" name="campground[title]" value="<%= campGround.title %>" required>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="location" class="form-label">場所</label>
+                <input type="text" class="form-control" id="location" name="campground[location]" value="<%= campGround.location %>" required>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+            <div class="mb-3">
+                <!-- Input group -->
+                <label for="price" class="form-label">価格</label>
+                <div class="input-group">
+                    <!-- aria-describedby はspanとinputの紐づけ -->
+                    <span class="input-group-text" id="price-label">￥</span>
+                    <input type="text" class="form-control" id="price" placeholder="0" aria-label="価格" aria-describedby="price-label" name="campground[price]" value="<%= campGround.price %>" required>
+                </div>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">画像URL</label>
+                <input type="text" class="form-control" id="image" name="campground[image]" value="<%= campGround.image %>" required>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">説明</label>
+                <textarea type="text" class="form-control" id="description" name="campground[description]" required><%= campGround.description %></textarea>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-info" type="submit">編集</button>
+            </div>
+        </form>
+        <a href="/campgrounds">一覧へ戻る</a>
+    </div>
+</div>
+
+
+
+
+
+
+
+

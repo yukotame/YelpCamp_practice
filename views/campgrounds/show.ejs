@@ -1,19 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>キャンプ場詳細ページ</title>
-</head>
-<body>
-    <h1>キャンプ場詳細ページ</h1>
-    <!-- キャンプ場一覧の表示 -->
-   
-    <li><%= campGround.title %></li>
-    <li><%= campGround.location %></li>
+<% layout('layouts/boilerplate') %>
+<!-- グリッド　col-6 = 12分割のうち 6列分の幅 offset-3 = 左側に 3列分の空白を追加 -->
+<!-- キャンプ場一覧の表示 Card Kitchen sink-->
+<div class="row">
+<div class="col-6 offset-3">
 
-    <form action="/campgrounds/<%= campGround._id %>?_method=DELETE" method="POST">
-        <button type="submit">キャンプ場を削除</button>
-    </form>
-</body>
-</html>
+    <div class="card mb-3" >
+        <img src="<%= campGround.image %>" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title"><%= campGround.title %></h5>
+            <p class="card-text"><%= campGround.description %></p>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item text-muted"><%= campGround.location %></li>
+            <li class="list-group-item"><%= campGround.price %> / 泊</li>
+        </ul>
+        <div class="card-body">
+            <a class="btn btn-info" href="/campgrounds/<%= campGround._id %>/edit">編集画面</a>
+            <!-- d-inline 横並び-->
+            <form  class="d-inline" href="/campgrounds/<%= campGround._id %>?_method=DELETE" method="POST">
+            <button class="btn btn-danger" type="submit">キャンプ場を削除</button>
+            </form>
+        </div>
+        <div class="card-footer text-muted">
+
+        2 days ago
+        </div>
+    </div>
+</div>
+</div>
+

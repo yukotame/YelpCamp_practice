@@ -36,10 +36,14 @@ const seed = async()=>{
         // console.log("city" , cities[i+1]);
         // console.log("place" , places[i+1]);
         // console.log("descriptor" , descriptors[i+1]);
+        const price = Math.floor(Math.random()*5000 + 1000)
 
         const camp = new Campground({
             title:`${sample(descriptors)}・${sample(places)}`,      
-            location : `${cities[rand].prefecture}${cities[rand].city}`
+            location : `${cities[rand].prefecture}${cities[rand].city}`,
+            image: `https://picsum.photos/400?random=${Math.random()}`,
+            description:'ジョバンニまでなんだねえ。こいつをお持ちになったので、なんだか、泣きだしたいのを、虔んで聞いているというようにほくほくして、そっちを見あげました。ぼくはどうしてとるんですかと叫ぶようにききました。僕はあれをよく見てこころもちをしずめるんだジョバンニは、もうどこへ行ったろうカムパネルラもぼんやりそう言っていました。その小さな列車の窓は一列小さく赤く見え、その枝には熟してまっ赤になっていた。',
+            price
         })
         await camp.save();
     }

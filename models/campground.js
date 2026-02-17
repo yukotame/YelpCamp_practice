@@ -5,9 +5,10 @@ const Schema = mongoose.Schema;
 
  const campgroundSchema = new Schema({
     title:String,
-    price:String,
+    image:String,
+    price:Number,
     description:String,
-    location:String
+    location:String,
 
 })
 // 2. SchemaからModelを作成（ここが重要！）

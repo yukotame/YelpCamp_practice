@@ -13,6 +13,9 @@ import { fileURLToPath } from 'url';
 import  mongoose  from "mongoose";
 import { Campground } from "./models/campground.js";
 import methodOverride from 'method-override';
+import ejsMate from 'ejs-mate';
+import { catchAsync } from "./utils/catchAsync.js";
+import ExpressError from './utils/ExpressError.js';
 
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
 
@@ -35,11 +38,13 @@ const __dirname = path.dirname(__filename);
 
 
 const app = express();
+app.engine('ejs' , ejsMate);
 app.set('view engine' , 'ejs');
 // 設定
 //__dirname D:\MyApp\YelpCamp_app
 app.set('views', path.join(__dirname, 'views'));
-// この設定が true になっていることで、[ ] を使った階層構造を解析できるようになります
+
+// この設定が true になっていることで、[ ] を使った階層構造を解析できるようになります req.bodyがundefinedにならない
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware for method override ?_method=DELETEの使用許可
@@ -50,55 +55,96 @@ app.get('/', (req ,res)=>{
     
 })
 
-//キャンプ場一覧の表示
-app.get('/campgrounds' , async(req ,res )=>{
+//キャンプ場一覧の表示　
+// req クライアント（ブラウザ）から送られてきた情報が全部入っている箱
+// resサーバーからブラウザへ返すための箱
+app.get('/campgrounds' , catchAsync(async(req , res )=>{
+    
     const campGroundsAll = await Campground.find({});
     //views/campgrounds/index.ejs というファイルを探す
     res.render('campgrounds/index' , {campGroundsAll})
-})
+}))
 
 //キャンプ場登録画面
-app.get('/campgrounds/create' , async(req ,res )=>{
+app.get('/campgrounds/new' , (req ,res )=>{
     //path: view/campgrounds/new に遷移
     res.render('campgrounds/new' )
 })
 
 //キャンプ場登録処理
-app.post('/campgrounds' , async(req ,res )=>{
-    console.log("req" , req.body.campground.title);
-    const camp = new Campground({
-        title: req.body.campground.title,      
-        location : req.body.campground.location
-    })
+app.post('/campgrounds' , catchAsync(async(req ,res )=>{
+    console.log("req.body.campground:" , req.body.campground);
+    if(!req.body.campground) throw new ExpressError("不正なデータです。", 400)
+    const camp = new Campground(req.body.campground)
     await camp.save();
-
+    res.redirect(`/campgrounds/${camp._id}`)
     // res.render('campgrounds' )
-})
+}))
 
 //キャンプ場詳細ページの表示
-app.get('/campgrounds/:id' , async(req ,res )=>{
+app.get('/campgrounds/:id' , catchAsync(async(req ,res )=>{
     const { id } = req.params;
     const campGround = await Campground.findById(id);
     //path: view/campgrounds/show に遷移
     res.render('campgrounds/show' ,{campGround})
-})
+}))
 
 //キャンプ場詳細->抹消
-app.delete('/campgrounds/:id' , async(req ,res )=>{
+app.delete('/campgrounds/:id' , catchAsync(async(req ,res )=>{
     
     const { id } = req.params;
-    try {
-        await Campground.findByIdAndDelete(id); // MongoDBから該当するキャンプ場を削除
-        res.redirect('/campgrounds'); // 削除後にリダイレクト
-        console.log("削除できた")
-    } catch (err) {
+
+    await Campground.findByIdAndDelete(id); // MongoDBから該当するキャンプ場を削除
+    res.redirect('/campgrounds'); // 削除後にリダイレクト
+    console.log("削除できた")
+
+    console.error(err);
+    res.status(500).send('キャンプ場の削除中にエラーが発生しました');
+      
+}))
+
+//キャンプ場編集画面表示
+app.get('/campgrounds/:id/edit' , catchAsync(async(req ,res )=>{
+    const { id } = req.params;
+    const campGround = await Campground.findById(id);
+    //path: view/campgrounds/show に遷移
+    res.render('campgrounds/edit' ,{campGround})
+   
+}))
+
+//キャンプ場編集画面表示
+app.put('/campgrounds/:id' , catchAsync(async(req ,res )=>{
+console.log("PUT!!!", req.body.campground)
+
+    const { id } = req.params;
+ 
+        const UpdateCampground = await Campground.findByIdAndUpdate(
+        id,
+        
+        {...req.body.campground},
+        { new: true } // 更新後のデータを返す
+        );
+        console.log("UpdateCampground" , UpdateCampground);
+        res.redirect(`/campgrounds/${UpdateCampground._id}`)
+
         console.error(err);
         res.status(500).send('キャンプ場の削除中にエラーが発生しました');
-    }
-   
+    
+}))
+
+//all すべてのメソッド
+app.all(/.*/, (req,res,next)=>{
+    
+    next(new ExpressError("ページが見つかりません" , 404));
 })
 
+app.use((err, req, res, next)=>{
 
+    console.log("エラー内容:", err);
+    const {msg ="問題が発生しました" , status=500} = err;
+    res.status(status).render('error', {err});
+   
+})
 
 
 app.listen(3000, ()=>{
