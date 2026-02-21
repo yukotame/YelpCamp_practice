@@ -11,19 +11,24 @@ import express from "express";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import  mongoose  from "mongoose";
-import { Campground } from "./models/campground.js";
+import Joi from "joi";
 import methodOverride from 'method-override';
 import ejsMate from 'ejs-mate';
-import { catchAsync } from "./utils/catchAsync.js";
 import ExpressError from './utils/ExpressError.js';
-
+import campgroundRouter from "./routes/campgrounds.js"
+import reviewRouter from "./routes/reviews.js"
+import session from "express-session";
+import flash from "connect-flash";
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
+
+
 
 // Mongooseの接続処理
 mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex : true
+    useCreateIndex : true,
+    useFindAndModify:false
 }).then(() => {
     console.log("MongoDBに接続しました！");
 }).catch(err => {
@@ -44,111 +49,60 @@ app.set('view engine' , 'ejs');
 //__dirname D:\MyApp\YelpCamp_app
 app.set('views', path.join(__dirname, 'views'));
 
+// app.js の上の方に記述
+app.use(express.json());
 // この設定が true になっていることで、[ ] を使った階層構造を解析できるようになります req.bodyがundefinedにならない
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware for method override ?_method=DELETEの使用許可
 app.use(methodOverride('_method'));
+//静的ファイルをつかえるようにする
+app.use(express.static(path.join(__dirname, 'public')))
+
+
+// セッションのミドルウェア設定
+const sessionConfig={
+secret: 'my-secret', // 署名用の秘密鍵（適当な長い文字列）
+  resave: false,             // セッションに変更がなくても保存するか
+  saveUninitialized: true,  // 初期化されていないセッションを保存するか
+  cookie: {
+    httpOnly:true,
+    maxAge: 60 * 60 * 1000,  // 有効期限（ミリ秒：ここでは1時間）ChormeのCookieのExpiresでみれる！
+    secure: false            // HTTPSならtrueにする
+  }
+}
+//セッションIDが発行される。
+app.use(session(sessionConfig));
+// connect-flash の有効化
+app.use(flash());
+//localsでどこでもflashがつかえるように
+app.use((req, res, next)=>{
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+     next();
+ });
+
+app.use('/campgrounds', campgroundRouter);
+app.use('/campgrounds/:id/reviews', reviewRouter);
 
 app.get('/', (req ,res)=>{
-    res.render('home')
-    
+    res.render('home')    
 })
-
-//キャンプ場一覧の表示　
-// req クライアント（ブラウザ）から送られてきた情報が全部入っている箱
-// resサーバーからブラウザへ返すための箱
-app.get('/campgrounds' , catchAsync(async(req , res )=>{
-    
-    const campGroundsAll = await Campground.find({});
-    //views/campgrounds/index.ejs というファイルを探す
-    res.render('campgrounds/index' , {campGroundsAll})
-}))
-
-//キャンプ場登録画面
-app.get('/campgrounds/new' , (req ,res )=>{
-    //path: view/campgrounds/new に遷移
-    res.render('campgrounds/new' )
-})
-
-//キャンプ場登録処理
-app.post('/campgrounds' , catchAsync(async(req ,res )=>{
-    console.log("req.body.campground:" , req.body.campground);
-    if(!req.body.campground) throw new ExpressError("不正なデータです。", 400)
-    const camp = new Campground(req.body.campground)
-    await camp.save();
-    res.redirect(`/campgrounds/${camp._id}`)
-    // res.render('campgrounds' )
-}))
-
-//キャンプ場詳細ページの表示
-app.get('/campgrounds/:id' , catchAsync(async(req ,res )=>{
-    const { id } = req.params;
-    const campGround = await Campground.findById(id);
-    //path: view/campgrounds/show に遷移
-    res.render('campgrounds/show' ,{campGround})
-}))
-
-//キャンプ場詳細->抹消
-app.delete('/campgrounds/:id' , catchAsync(async(req ,res )=>{
-    
-    const { id } = req.params;
-
-    await Campground.findByIdAndDelete(id); // MongoDBから該当するキャンプ場を削除
-    res.redirect('/campgrounds'); // 削除後にリダイレクト
-    console.log("削除できた")
-
-    console.error(err);
-    res.status(500).send('キャンプ場の削除中にエラーが発生しました');
-      
-}))
-
-//キャンプ場編集画面表示
-app.get('/campgrounds/:id/edit' , catchAsync(async(req ,res )=>{
-    const { id } = req.params;
-    const campGround = await Campground.findById(id);
-    //path: view/campgrounds/show に遷移
-    res.render('campgrounds/edit' ,{campGround})
-   
-}))
-
-//キャンプ場編集画面表示
-app.put('/campgrounds/:id' , catchAsync(async(req ,res )=>{
-console.log("PUT!!!", req.body.campground)
-
-    const { id } = req.params;
- 
-        const UpdateCampground = await Campground.findByIdAndUpdate(
-        id,
-        
-        {...req.body.campground},
-        { new: true } // 更新後のデータを返す
-        );
-        console.log("UpdateCampground" , UpdateCampground);
-        res.redirect(`/campgrounds/${UpdateCampground._id}`)
-
-        console.error(err);
-        res.status(500).send('キャンプ場の削除中にエラーが発生しました');
-    
-}))
 
 //all すべてのメソッド
-app.all(/.*/, (req,res,next)=>{
-    
+app.all(/.*/, (req,res,next)=>{    
     next(new ExpressError("ページが見つかりません" , 404));
 })
 
 app.use((err, req, res, next)=>{
-
-    console.log("エラー内容:", err);
+    // console.log("エラー内容:", err);
     const {msg ="問題が発生しました" , status=500} = err;
     res.status(status).render('error', {err});
    
 })
 
 
-app.listen(3000, ()=>{
-    
+app.listen(3000, ()=>{    
     console.log("PORT 3000 でリクエスト待ち受け中・・・");
 })
 

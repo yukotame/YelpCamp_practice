@@ -1,0 +1,19 @@
+<% if(success && success.length){%>
+<!-- Bootstrap compornent Alerts Dismissing -->
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+ <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<% console.dir(success) %>
+<%= success %>
+</div>
+<% }%>
+
+
+<% if(error && error.length){%>
+<!-- Bootstrap compornent Alerts Dismissing -->
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+ <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<% console.dir(error) %>
+<%= error %>
+</div>
+<% }%>
+

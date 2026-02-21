@@ -2,8 +2,8 @@
 <!-- グリッド　col-6 = 12分割のうち 6列分の幅 offset-3 = 左側に 3列分の空白を追加 -->
 <!-- キャンプ場一覧の表示 Card Kitchen sink-->
 <div class="row">
-<div class="col-6 offset-3">
-
+<div class="col-6">
+    
     <div class="card mb-3" >
         <img src="<%= campGround.image %>" class="card-img-top" alt="...">
         <div class="card-body">
@@ -17,7 +17,7 @@
         <div class="card-body">
             <a class="btn btn-info" href="/campgrounds/<%= campGround._id %>/edit">編集画面</a>
             <!-- d-inline 横並び-->
-            <form  class="d-inline" href="/campgrounds/<%= campGround._id %>?_method=DELETE" method="POST">
+            <form  class="d-inline" action="/campgrounds/<%= campGround._id %>?_method=DELETE" method="POST">
             <button class="btn btn-danger" type="submit">キャンプ場を削除</button>
             </form>
         </div>
@@ -25,7 +25,41 @@
 
         2 days ago
         </div>
+        
+        
     </div>
 </div>
+
+<div class="col-6">
+    <h2>レビュー</h2>
+        <form action="/campgrounds/<%= campGround._id %>/reviews" method="POST" novalidate class="needs-validation">
+            <div class="mb-3">
+                <label class="form-label" for="rating"></label>
+                <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+
+            </div>
+            <div class="mb-3">
+                <!-- Form control -->
+                <label class="form-label" for="body">コメント</label>
+                <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+            </div>
+            <button class="btn btn-success" type="submit">投稿</button>
+        </form>
+    <% for(let review of campGround.reviews) { %>
+    <div class="card mb-3">
+        <div class="card-body">
+        <form action="/campgrounds/<%= campGround._id %>/reviews/<%=review._id%>?_method=DELETE" method="POST" >
+       
+            <h5 class="card-title">評価：<%= review.rating %></h5>
+            <p class="card-text">コメント：<%= review.body %></p>
+
+            <button class="btn btn-sm btn-danger" type="submit">削除</button>
+        </form>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+
 </div>
 

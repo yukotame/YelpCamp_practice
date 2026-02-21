@@ -1,4 +1,5 @@
 import  mongoose  from "mongoose";
+import { Review } from "./review.js";
 
 const Schema = mongoose.Schema;
 
@@ -9,7 +10,24 @@ const Schema = mongoose.Schema;
     price:Number,
     description:String,
     location:String,
+    reviews:[
+        {
+            type:Schema.Types.ObjectId,
+            ref:'Review'
+        }
+    ]
 
 })
+
+//campgroundに紐づいたReviewを削除する
+campgroundSchema.post('findOneAndDelete', async function (campGround) {
+    console.log("削除！！")
+    if (campGround.reviews.length) {
+        const res = await Review.deleteMany({ _id: { $in: campGround.reviews } });
+        console.log(res);
+    }
+});
+
+
 // 2. SchemaからModelを作成（ここが重要！）
 export const Campground = mongoose.model('Campground', campgroundSchema);
