@@ -3,6 +3,7 @@ import { catchAsync } from "../utils/catchAsync.js"
 import ExpressError from '../utils/ExpressError.js';
 import { Campground } from "../models/campground.js";
 import { campgroundSchema } from '../schemas.js';
+import { isLoggedIn } from '../middleware.js';
 
 const router = express.Router(); 
 const validateCampGround = (req , res , next)=>{
@@ -36,13 +37,14 @@ router.get('/' , catchAsync(async(req , res )=>{
 }))
 
 //キャンプ場登録画面
-router.get('/new' , (req ,res )=>{
+router.get('/new' , isLoggedIn, (req ,res )=>{
+
     //path: view/campgrounds/new に遷移
     res.render('campgrounds/new' )
 })
 
 //キャンプ場登録処理
-router.post('/' ,validateCampGround,  catchAsync(async(req ,res )=>{
+router.post('/' , isLoggedIn, validateCampGround,  catchAsync(async(req ,res )=>{
  
     const camp = new Campground(req.body.campground)
     await camp.save();
@@ -53,7 +55,7 @@ router.post('/' ,validateCampGround,  catchAsync(async(req ,res )=>{
 }))
 
 //キャンプ場詳細ページの表示
-router.get('/:id' , catchAsync(async(req ,res )=>{
+router.get('/:id' , isLoggedIn, catchAsync(async(req ,res )=>{
     const { id } = req.params;
    
     const campGround = await Campground.findById(id).populate('reviews');
@@ -74,7 +76,7 @@ router.get('/:id' , catchAsync(async(req ,res )=>{
 
 
 //キャンプ場詳細->抹消
-router.delete('/:id' , catchAsync(async(req ,res )=>{
+router.delete('/:id' , isLoggedIn, catchAsync(async(req ,res )=>{
     // console.log("del reviews" );
     const { id } = req.params;
     const reviews = await Campground.findById(id).populate('reviews');
@@ -91,7 +93,7 @@ router.delete('/:id' , catchAsync(async(req ,res )=>{
 }))
 
 //キャンプ場編集画面表示
-router.get('/:id/edit' , catchAsync(async(req ,res )=>{
+router.get('/:id/edit' ,  catchAsync(async(req ,res )=>{
     
     const { id } = req.params;
     const campGround = await Campground.findById(id);
@@ -108,7 +110,7 @@ router.get('/:id/edit' , catchAsync(async(req ,res )=>{
 }))
 
 //キャンプ場編集画面表示
-router.put('/:id' , validateCampGround , catchAsync(async(req ,res )=>{
+router.put('/:id' , isLoggedIn, validateCampGround , catchAsync(async(req ,res )=>{
 console.log("PUT!!!", req.body.campground)
 
     const { id } = req.params;

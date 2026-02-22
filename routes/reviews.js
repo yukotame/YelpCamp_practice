@@ -5,6 +5,7 @@ import ExpressError from '../utils/ExpressError.js';
 import { reviewSchema } from '../schemas.js';
 import { Campground } from "../models/campground.js";
 import { Review } from "../models/review.js";
+import { isLoggedIn } from '../middleware.js';
 
 //campgroundsのidがあることを明示する必要がある。
 //app.js側で app.use('/campgrounds/:id/reviews', reviewRouter);を書くため。
@@ -31,7 +32,7 @@ const validateReview = (req , res , next)=>{
 
 //review
 //post  campgrounds/:id/reviews
-router.post('/' , validateReview , async(req ,res )=>{
+router.post('/' , isLoggedIn, validateReview , async(req ,res )=>{
     const {id} = req.params;
     console.log("farmId" ,id );
     console.log("review " ,req.body.review );
@@ -52,7 +53,7 @@ router.post('/' , validateReview , async(req ,res )=>{
     // // res.render('campgrounds' )
 })
 
-router.delete('/:reviewId/' ,  async(req ,res )=>{
+router.delete('/:reviewId/' , isLoggedIn,  async(req ,res )=>{
     const {campgroundId} = req.params;
     const {reviewId} = req.params;
     const deleteReview = await Review.findByIdAndDelete(reviewId);

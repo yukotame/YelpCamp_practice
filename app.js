@@ -17,9 +17,16 @@ import ejsMate from 'ejs-mate';
 import ExpressError from './utils/ExpressError.js';
 import campgroundRouter from "./routes/campgrounds.js"
 import reviewRouter from "./routes/reviews.js"
+import userRouter from "./routes/users.js"
 import session from "express-session";
 import flash from "connect-flash";
+import passport from "passport";
+import LocalStrategy from "passport-local";
+
+import { User } from "./models/user.js"
+
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
+
 
 
 
@@ -59,7 +66,6 @@ app.use(methodOverride('_method'));
 //静的ファイルをつかえるようにする
 app.use(express.static(path.join(__dirname, 'public')))
 
-
 // セッションのミドルウェア設定
 const sessionConfig={
 secret: 'my-secret', // 署名用の秘密鍵（適当な長い文字列）
@@ -77,11 +83,25 @@ app.use(session(sessionConfig));
 app.use(flash());
 //localsでどこでもflashがつかえるように
 app.use((req, res, next)=>{
+
+    res.locals.returnTo = req.session.returnTo;
+    //セッションのユーザー情報
+    res.locals.currentUser  = req.user;
+
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
      next();
  });
 
+ //passportを使えるように
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//register, login,logout
+app.use('/', userRouter);
 app.use('/campgrounds', campgroundRouter);
 app.use('/campgrounds/:id/reviews', reviewRouter);
 
