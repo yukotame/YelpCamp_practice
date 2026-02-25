@@ -1,4 +1,7 @@
 <% layout('layouts/boilerplate') %>
+<!-- cssの読み込み -->
+<link rel="stylesheet" href="/css/stars.css">
+
 <!-- グリッド　col-6 = 12分割のうち 6列分の幅 offset-3 = 左側に 3列分の空白を追加 -->
 <!-- キャンプ場一覧の表示 Card Kitchen sink-->
 <div class="row">
@@ -12,8 +15,11 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item text-muted"><%= campGround.location %></li>
+            <li class="list-group-item text-muted">登録者: <%= campGround.author.username %></li>
             <li class="list-group-item"><%= campGround.price %> / 泊</li>
         </ul>
+        <!-- mongooseのid比較メソッド -->
+        <%if( currentUser && campGround.author.equals(currentUser._id) ){ %>
         <div class="card-body">
             <a class="btn btn-info" href="/campgrounds/<%= campGround._id %>/edit">編集画面</a>
             <!-- d-inline 横並び-->
@@ -21,6 +27,7 @@
             <button class="btn btn-danger" type="submit">キャンプ場を削除</button>
             </form>
         </div>
+         <%} %></li>
         <div class="card-footer text-muted">
 
         2 days ago
@@ -31,12 +38,24 @@
 </div>
 
 <div class="col-6">
+    <p><%=currentUser%></p>
+    <%if(currentUser){ %>
     <h2>レビュー</h2>
         <form action="/campgrounds/<%= campGround._id %>/reviews" method="POST" novalidate class="needs-validation">
-            <div class="mb-3">
-                <label class="form-label" for="rating"></label>
-                <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
-
+            <div >
+                <fieldset class="starability-basic">
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" checked/>
+                    <label for="first-rate1" title="1">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2" title="2">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3" title="3">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4" title="4">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5" title="5">5 stars</label>
+                </fieldset> 
+ 
             </div>
             <div class="mb-3">
                 <!-- Form control -->
@@ -45,15 +64,21 @@
             </div>
             <button class="btn btn-success" type="submit">投稿</button>
         </form>
+        <%} %>
     <% for(let review of campGround.reviews) { %>
     <div class="card mb-3">
         <div class="card-body">
         <form action="/campgrounds/<%= campGround._id %>/reviews/<%=review._id%>?_method=DELETE" method="POST" >
        
-            <h5 class="card-title">評価：<%= review.rating %></h5>
+            <h5 class="card-title"><%= review.author.username %></h5>     
+            <p class="starability-result" data-rating="<%= review.rating %>">
+                    Rated: <%= review.rating %> stars
+            </p>
+            <!-- <h6 class="card-subtitle mb-2 text-muted"><%= review.author.username %></h6> -->
             <p class="card-text">コメント：<%= review.body %></p>
-
+            <% if( currentUser && campGround.author.equals(currentUser._id) ){  %>
             <button class="btn btn-sm btn-danger" type="submit">削除</button>
+             <% } %>
         </form>
         </div>
     </div>

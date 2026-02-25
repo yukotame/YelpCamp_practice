@@ -81,17 +81,6 @@ secret: 'my-secret', // 署名用の秘密鍵（適当な長い文字列）
 app.use(session(sessionConfig));
 // connect-flash の有効化
 app.use(flash());
-//localsでどこでもflashがつかえるように
-app.use((req, res, next)=>{
-
-    res.locals.returnTo = req.session.returnTo;
-    //セッションのユーザー情報
-    res.locals.currentUser  = req.user;
-
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-     next();
- });
 
  //passportを使えるように
 app.use(passport.initialize());
@@ -99,6 +88,21 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+//localsでどこでもflashがつかえるように
+app.use((req, res, next)=>{
+    
+    //ログイン前に入ろうとしたURL
+    // res.locals.returnTo = req.session.returnTo;
+
+    //セッションのユーザー情報
+    // セッションからユーザーIDを取り出し、passport.deserializeUser() 
+    // を実行してユーザー情報を復元し、それを req.user に代入します。
+    console.log("req.user★★" ,req.user);
+    res.locals.currentUser  = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+ });
 
 //register, login,logout
 app.use('/', userRouter);
