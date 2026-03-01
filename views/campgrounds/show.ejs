@@ -110,14 +110,10 @@
 
 </div>
 
-<!-- サーバーからクライアントへデータを安全に渡す -->
-<script id="campground-data" type="application/json">
-    <%- JSON.stringify(campGround) %>
-</script>
-
 <script>
     const maptilerApiKey = '<%- process.env.MAPTILER_API_KEY %>';
-    const campground = JSON.parse(document.getElementById('campground-data').textContent);
+    /* eslint-disable */
+    const campground = <%- JSON.stringify(campGround) %>;
 </script>
 
 <script src="/javascripts/showPageMap.js"></script>

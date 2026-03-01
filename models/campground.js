@@ -1,6 +1,7 @@
 import  mongoose  from "mongoose";
 import { Review } from "./review.js";
 
+const opts = { toJSON: { virtuals: true } };
 const Schema = mongoose.Schema;
 
 const imageSchema = new Schema({
@@ -41,8 +42,13 @@ imageSchema.virtual('thumbnail').get(function(){
         }
     ]
 
-})
+}, opts); // ←ここのoptsを追加
 
+// ↓↓↓ここを追加
+campgroundSchema.virtual('properties.popupMarkup').get(function () {
+    return `<strong><a href="/campgrounds/${this._id}">${this.title}</a></strong>
+    <p>${this.description.substring(0, 20)}...</p>`
+});
 //campgroundに紐づいたReviewを削除する
 campgroundSchema.post('findOneAndDelete', async function (campGround) {
     console.log("削除！！")

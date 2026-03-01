@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
 <h1>キャンプ場一覧</h1>
-
+<div id="cluster-map" style="width: 100%; height: 500px"></div>
 <!-- キャンプ場一覧の表示 -->
 <% for(let camp of campGroundsAll) { %>
   <div class="card mb-3">
@@ -33,5 +33,22 @@
     </div>
   </div>
   <% } %>
+
+  <script>
+    const maptilerApiKey = "<%- process.env.MAPTILER_API_KEY %>";
+    /* eslint-disable */
+    const campgrounds = {
+      type: "FeatureCollection",
+      features: <%- JSON.stringify(
+        campGroundsAll.map(campground => ({
+          type: "Feature",
+          geometry: campground.geometry,
+          properties: { popupMarkup: campground?.properties?.popupMarkup }
+        }))
+      ) %>
+    };
+  </script>
+
+  <script src="/javascripts/clusterMap.js"></script>
   
 
