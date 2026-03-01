@@ -60,7 +60,7 @@
 
 <div class="col-6">
     <p><%=currentUser%></p>
-     <div id="map" style="width: 100%; height: 300px"></div>
+    <div id="map"></div>
     <%if(currentUser){ %>
     <h2>レビュー</h2>
         <form action="/campgrounds/<%= campGround._id %>/reviews" method="POST" novalidate class="needs-validation">
