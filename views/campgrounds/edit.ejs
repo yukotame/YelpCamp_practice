@@ -5,7 +5,7 @@
 <div class="row">
     <h1 class="text-center">キャンプ場編集</h1>
     <div class="offset-3 col-6">
-        <form action="/campgrounds/<%= campGround._id %>?_method=PUT" method="POST" novalidate class="needs-validation">
+        <form action="/campgrounds/<%= campGround._id %>?_method=PUT" method="POST" novalidate class="needs-validation"  enctype="multipart/form-data">
             <div class="mb-3">
                 <!-- Form control -->
                 <label for="title" class="form-label">キャンプ場名</label>
@@ -33,13 +33,7 @@
                     OK!
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">画像URL</label>
-                <input type="text" class="form-control" id="image" name="campground[image]" value="<%= campGround.image %>" required>
-                <div class="valid-feedback">
-                    OK!
-                </div>
-            </div>
+
             <div class="mb-3">
                 <label for="description" class="form-label">説明</label>
                 <textarea type="text" class="form-control" id="description" name="campground[description]" required><%= campGround.description %></textarea>
@@ -47,8 +41,31 @@
                     OK!
                 </div>
             </div>
+             <div class="mb-3">
+                <!-- BootStrap Form control　File input -->
+                <!-- <label for="image" class="form-label">画像URL</label>
+                <input type="text" class="form-control" id="image" name="campground[image]" value="<%= campGround.image %>" required> -->
+
+                <div class="mb-3">
+                <label for="image" class="form-label">画像追加</label>
+                <input class="form-control" type="file" name="image_form" id="image" multiple >
+                </div>
+                <div class="valid-feedback">
+                    OK!
+                </div>
+            </div>
+             <div class="mb-3">
+                <% campGround.images.forEach(function(img, i) { %>
+                    <!-- <img src="<%= img.url %>" class="img-thumbnail" alt=""> -->
+                    <img src="<%= img.thumbnail %>" class="img-thumbnail" alt="">                   
+                    <div class="form-check-inline">
+                        <input type="checkbox" name="deleteImages[]" id="image-<%= i %>" value="<%= img.filename %>">
+                    </div>
+                    <label for="image-<%= i %>">削除する</label>
+                <% }) %>
+            </div>
             <div class="mb-3">
-                <button class="btn btn-info" type="submit">編集</button>
+                <button class="btn btn-info" type="submit">更新する</button>
             </div>
         </form>
         <a href="/campgrounds">一覧へ戻る</a>

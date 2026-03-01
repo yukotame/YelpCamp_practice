@@ -5,6 +5,8 @@
 // dotenv: 環境変数の管理
 // method-override: HTMLフォームでPUTやDELETEメソッドを使用可能にする
 // path: ファイルパス操作のためのNode.js組み込みモジュール
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 // 環境変数の読み込み
 // .envファイルから環境変数をロードして、プロジェクト全体で使用可能にする
@@ -22,13 +24,11 @@ import session from "express-session";
 import flash from "connect-flash";
 import passport from "passport";
 import LocalStrategy from "passport-local";
-
 import { User } from "./models/user.js"
 
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
 
-
-
+console.log(process.env.SECRET);
 
 // Mongooseの接続処理
 mongoose.connect(dbUrl, {
@@ -60,6 +60,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 // この設定が true になっていることで、[ ] を使った階層構造を解析できるようになります req.bodyがundefinedにならない
 app.use(express.urlencoded({ extended: true }));
+
 
 // Middleware for method override ?_method=DELETEの使用許可
 app.use(methodOverride('_method'));

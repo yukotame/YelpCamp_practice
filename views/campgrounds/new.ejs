@@ -5,7 +5,8 @@
 <div class="row">
     <h1 class="text-center">キャンプ場登録</h1>
     <div class="offset-3 col-6">
-        <form action="/campgrounds" method="POST" novalidate class="needs-validation">
+        <!-- enctype="multipart/form-data"で画像をアップロードできる。画像ファイルなどのバイナリデータをサーバーに送ることができるようになります。 -->
+        <form action="/campgrounds" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
             <div class="mb-3">
                 <!-- Form control -->
                 <label for="title" class="form-label">キャンプ場名</label>
@@ -34,11 +35,17 @@
             </div>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">画像URL</label>
+
+                <div class="mb-3">
+                <label for="image" class="form-label">画像の追加アップロード</label>
+                <input class="form-control" type="file" name="image_form" id="image"  multiple>
+                </div>
+
+                <!-- 
                 <input type="text" class="form-control" id="image" name="campground[image]" placeholder="例：北海道"  required> 
                 <div class="valid-feedback">
                     OK!
-                </div>
+                </div> -->
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">説明</label>

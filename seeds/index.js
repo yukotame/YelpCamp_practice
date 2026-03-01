@@ -41,10 +41,25 @@ const seed = async()=>{
         const camp = new Campground({
             title:`${sample(descriptors)}・${sample(places)}`,      
             location : `${cities[rand].prefecture}${cities[rand].city}`,
-            image: `https://picsum.photos/400?random=${Math.random()}`,
+            // image: `https://picsum.photos/400?random=${Math.random()}`,
             description:'ジョバンニまでなんだねえ。こいつをお持ちになったので、なんだか、泣きだしたいのを、虔んで聞いているというようにほくほくして、そっちを見あげました。ぼくはどうしてとるんですかと叫ぶようにききました。僕はあれをよく見てこころもちをしずめるんだジョバンニは、もうどこへ行ったろうカムパネルラもぼんやりそう言っていました。その小さな列車の窓は一列小さく赤く見え、その枝には熟してまっ赤になっていた。',
             price:1000,
-            author:'699ad876d94e8d75087d335d'
+            author:'699ad876d94e8d75087d335d',
+            images:[{
+                
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098204/YelpCamp/utt52bqpv4ze7docntuq.jpg',
+                filename: 'YelpCamp/utt52bqpv4ze7docntuq'
+            },
+            {
+                
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098205/YelpCamp/mkvuydtjjboosx8qbdde.jpg',
+                filename: 'YelpCamp/mkvuydtjjboosx8qbdde'
+            },
+            {
+            
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098205/YelpCamp/xnmntmdzbzemglafgltr.jpg',
+                filename: 'YelpCamp/xnmntmdzbzemglafgltr'
+            }]
         })
         await camp.save();
     }

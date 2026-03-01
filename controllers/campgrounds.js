@@ -1,4 +1,6 @@
 import { Campground } from "../models/campground.js";
+import { v2 as cloudinary } from "cloudinary";
+
 
 //１．キャンプ場一覧の表示　
 export const index = async(req , res )=>{
@@ -15,12 +17,13 @@ export const renderNewForm = (req ,res )=>{
 } 
 
 //３．キャンプ場登録処理
+//req.files :ルーティング側でmulterなどのミドルウェアを使っているため。
 export const createCampground = async(req ,res )=>{
  
     const camp = new Campground(req.body.campground);
     //★★★ここが不明
     camp.author = req.user._id;
-    console.log("post index!!! camp.author :" , camp.author )
+    camp.images = req.files.map(f=>({url:f.path , filename:f.filename}))
     await camp.save();
     //flashに登録
     req.flash('success','新しいキャンプ場を登録しました。')
@@ -39,7 +42,7 @@ export const showCampground =async(req ,res )=>{
                          }
                      }).populate('author');
      //path: view/campgrounds/show に遷移
-     console.log("キャンプ場詳細ページ campGround", campGround)
+     console.log("キャンプ場詳細ページ campGround", campGround.images)
      
      if(!campGround){
          //flashに登録
@@ -84,6 +87,7 @@ export const showCampground =async(req ,res )=>{
 
  //７．キャンプ場編集処理
  export const updateCampground =  async(req ,res )=>{
+    console.log("キャンプ場編集 req.body" , req.body)
     const { id } = req.params;
     const UpdateCampground = await Campground.findByIdAndUpdate(
     id,    
@@ -91,9 +95,23 @@ export const showCampground =async(req ,res )=>{
     { new: true } // 更新後のデータを返す
     );
 
+    //画像追加
+    const images = req.files.map(f=>({url:f.path , filename:f.filename}))
+    UpdateCampground.images.push(...images);
+    await UpdateCampground.save();
+
+    //削除対象の画像がある場合['safawfwadf' , 'vsafwafwesf']
+    if(req.body.deleteImages){
+        for(let filename of req.body.deleteImages ){
+            await cloudinary.uploader.destroy(filename);
+        }
+        //★難しい
+        await Campground.updateOne({$pull:{images : {filename:{$in:req.body.deleteImages}}}})
+    }
+
     //flashに登録
     req.flash('success','新しいキャンプ場を更新しました。')
     console.log("UpdateCampground" , UpdateCampground);
-    res.redirect(`campgrounds/${UpdateCampground._id}`)  
+    res.redirect(`/campgrounds/${UpdateCampground._id}`)  
     
 } 

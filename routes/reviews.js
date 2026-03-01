@@ -9,6 +9,7 @@ import { isLoggedIn ,validateReview, isReviewAuthor} from '../middleware.js';
 import {createReview , deleteReview } from "../controllers/reviews.js";
 
 
+
 //campgroundsのidがあることを明示する必要がある。
 //app.js側で app.use('/campgrounds/:id/reviews', reviewRouter);を書くため。
 const router = express.Router({mergeParams:true}); 
