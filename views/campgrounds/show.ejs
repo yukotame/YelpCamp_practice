@@ -60,6 +60,7 @@
 
 <div class="col-6">
     <p><%=currentUser%></p>
+     <div id="map" style="width: 100%; height: 300px"></div>
     <%if(currentUser){ %>
     <h2>レビュー</h2>
         <form action="/campgrounds/<%= campGround._id %>/reviews" method="POST" novalidate class="needs-validation">
@@ -109,3 +110,14 @@
 
 </div>
 
+<!-- サーバーからクライアントへデータを安全に渡す -->
+<script id="campground-data" type="application/json">
+    <%- JSON.stringify(campGround) %>
+</script>
+
+<script>
+    const maptilerApiKey = '<%- process.env.MAPTILER_API_KEY %>';
+    const campground = JSON.parse(document.getElementById('campground-data').textContent);
+</script>
+
+<script src="/javascripts/showPageMap.js"></script>

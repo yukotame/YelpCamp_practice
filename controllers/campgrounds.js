@@ -1,5 +1,11 @@
+import * as maptiler from "@maptiler/client";
 import { Campground } from "../models/campground.js";
 import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
+dotenv.config();
+// MapTilerのAPIキー設定
+maptiler.config.apiKey = process.env.MAPTILER_API_KEY;
+
 
 
 //１．キャンプ場一覧の表示　
@@ -20,10 +26,18 @@ export const renderNewForm = (req ,res )=>{
 //req.files :ルーティング側でmulterなどのミドルウェアを使っているため。
 export const createCampground = async(req ,res )=>{
  
+    const geoData = await maptiler.geocoding.forward(
+        req.body.campground.location,
+        { limit: 1 }
+    );
+
     const camp = new Campground(req.body.campground);
+    camp.geometry = geoData.features[0].geometry;
+    console.log("位置情報:" , camp.geometry)
+
     //★★★ここが不明
     camp.author = req.user._id;
-    camp.images = req.files.map(f=>({url:f.path , filename:f.filename}))
+    camp.images = req.files.map(f=>({url:f.path , filename:f.filename}));
     await camp.save();
     //flashに登録
     req.flash('success','新しいキャンプ場を登録しました。')
@@ -115,3 +129,24 @@ export const showCampground =async(req ,res )=>{
     res.redirect(`/campgrounds/${UpdateCampground._id}`)  
     
 } 
+
+// maptilerがつかえるか確認
+
+// MapTilerの動作確認用テスト
+async function testMaptiler() {
+    try {
+        // 例: ジオコーディングAPIで愛知県名古屋市を検索
+    const geoData = await maptiler.geocoding.forward(
+        '愛知県名古屋市',
+        // req.body.campground.location,
+        { limit: 1 }
+    );
+        console.log(geoData);
+
+        console.log('MapTilerテスト結果:', geoData.features[0].geometry);
+    } catch (err) {
+        console.error('MapTilerテスト失敗:', err);
+    }
+}
+// サーバ起動時に一度だけテスト
+// testMaptiler();

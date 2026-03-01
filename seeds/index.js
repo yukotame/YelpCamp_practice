@@ -3,6 +3,13 @@ import { places , descriptors } from "./seedHelpers.js";
 import  mongoose  from "mongoose";
 import { Campground } from "../models/campground.js";
 
+import * as maptiler from "@maptiler/client";
+import dotenv from "dotenv";
+dotenv.config();
+// MapTilerのAPIキー設定
+maptiler.config.apiKey = process.env.MAPTILER_API_KEY;
+
+
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
 // Mongooseの接続処理
 mongoose.connect(dbUrl, {
@@ -38,8 +45,14 @@ const seed = async()=>{
         // console.log("descriptor" , descriptors[i+1]);
         const price = Math.floor(Math.random()*5000 + 1000)
 
+        const geoData = await maptiler.geocoding.forward(
+           `${cities[rand].prefecture}${cities[rand].city}`,
+            // '愛知県名古屋市',
+            { limit: 1 }
+        );
         const camp = new Campground({
-            title:`${sample(descriptors)}・${sample(places)}`,      
+            title:`${sample(descriptors)}・${sample(places)}`,  
+            geometry: geoData.features[0].geometry,
             location : `${cities[rand].prefecture}${cities[rand].city}`,
             // image: `https://picsum.photos/400?random=${Math.random()}`,
             description:'ジョバンニまでなんだねえ。こいつをお持ちになったので、なんだか、泣きだしたいのを、虔んで聞いているというようにほくほくして、そっちを見あげました。ぼくはどうしてとるんですかと叫ぶようにききました。僕はあれをよく見てこころもちをしずめるんだジョバンニは、もうどこへ行ったろうカムパネルラもぼんやりそう言っていました。その小さな列車の窓は一列小さく赤く見え、その枝には熟してまっ赤になっていた。',
@@ -61,6 +74,7 @@ const seed = async()=>{
                 filename: 'YelpCamp/xnmntmdzbzemglafgltr'
             }]
         })
+        console.log('MapTilerテスト結果:', geoData.features[0].geometry);
         await camp.save();
     }
 
