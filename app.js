@@ -25,6 +25,12 @@ import flash from "connect-flash";
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import { User } from "./models/user.js"
+import mongoSanitize from "express-mongo-sanitize";
+import helmet from "helmet";
+
+
+
+
 
 const dbUrl = "mongodb://localhost:27017/yelp-camp"; // データベースURLを指定
 
@@ -69,21 +75,22 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 // セッションのミドルウェア設定
 const sessionConfig={
-secret: 'my-secret', // 署名用の秘密鍵（適当な長い文字列）
-  resave: false,             // セッションに変更がなくても保存するか
-  saveUninitialized: true,  // 初期化されていないセッションを保存するか
-  cookie: {
-    httpOnly:true,
-    maxAge: 60 * 60 * 1000,  // 有効期限（ミリ秒：ここでは1時間）ChormeのCookieのExpiresでみれる！
-    secure: false            // HTTPSならtrueにする
-  }
+    name:'session',
+    secret: 'my-secret', // 署名用の秘密鍵（適当な長い文字列）
+    resave: false,             // セッションに変更がなくても保存するか
+    saveUninitialized: true,  // 初期化されていないセッションを保存するか
+    cookie: {
+        httpOnly:true,
+        maxAge: 60 * 60 * 1000,  // 有効期限（ミリ秒：ここでは1時間）ChormeのCookieのExpiresでみれる！
+        secure: false            // HTTPSならtrueにする
+    }
 }
 //セッションIDが発行される。
 app.use(session(sessionConfig));
 // connect-flash の有効化
 app.use(flash());
 
- //passportを使えるように
+//passportを使えるように
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -94,7 +101,7 @@ app.use((req, res, next)=>{
     
     //ログイン前に入ろうとしたURL
     // res.locals.returnTo = req.session.returnTo;
-
+    
     //セッションのユーザー情報
     // セッションからユーザーIDを取り出し、passport.deserializeUser() 
     // を実行してユーザー情報を復元し、それを req.user に代入します。
@@ -103,15 +110,74 @@ app.use((req, res, next)=>{
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
- });
+});
+
+
+// mongoSanitizeを有効化
+// app.use(mongoSanitize());
+
+// helmetを有効化
+app.use(
+  helmet({
+    contentSecurityPolicy: true
+  }),
+);
+const scriptSrcUrls = [
+    // 'https://api.mapbox.com',
+    'https://api.maptiler.com',
+    'https://cdn.maptiler.com',   // MapTiler SDK JS
+    'https://cdn.jsdelivr.net'
+];
+const styleSrcUrls = [
+    // 'https://api.mapbox.com',
+    'https://api.maptiler.com',
+    'https://cdn.maptiler.com',   // MapTiler SDK CSS
+    'https://cdn.jsdelivr.net'
+];
+const connectSrcUrls = [
+    // 'https://api.mapbox.com',
+    // 'https://*.tiles.mapbox.com',
+    // 'https://events.mapbox.com',
+    'https://api.maptiler.com',
+    'https://*.maptiler.com',
+    'https://cdn.jsdelivr.net'    // Bootstrap map files
+];
+const fontSrcUrls = [];
+const imgSrcUrls = [
+    `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/`,
+    'https://images.unsplash.com',
+    'https://api.maptiler.com'    // MapTiler logo
+];
+
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: [],
+        connectSrc: ["'self'", ...connectSrcUrls],
+        scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+        styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+        workerSrc: ["'self'", "blob:"],
+        childSrc: ["blob:"],
+        objectSrc: [],
+        imgSrc: ["'self'", 'blob:', 'data:', ...imgSrcUrls],
+        fontSrc: ["'self'", ...fontSrcUrls]
+    }
+}));
+
 
 //register, login,logout
 app.use('/', userRouter);
 app.use('/campgrounds', campgroundRouter);
 app.use('/campgrounds/:id/reviews', reviewRouter);
 
+
+// http://localhost:3000/campgrounds/?$gt=SASFS
 app.get('/', (req ,res)=>{
-    res.render('home')    
+
+    // console.log("ほーむ");
+    console.log("sanitize:" , req.query);
+
+    res.send('home')    
+  
 })
 
 //all すべてのメソッド

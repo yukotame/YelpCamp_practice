@@ -60,18 +60,18 @@ const seed = async()=>{
             author:'699ad876d94e8d75087d335d',
             images:[{
                 
-                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098204/YelpCamp/utt52bqpv4ze7docntuq.jpg',
-                filename: 'YelpCamp/utt52bqpv4ze7docntuq'
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772340264/YelpCamp/g6fokflgmaoxyrmywyzs.jpg',
+                filename: 'YelpCamp/g6fokflgmaoxyrmywyzs'
             },
             {
                 
-                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098205/YelpCamp/mkvuydtjjboosx8qbdde.jpg',
-                filename: 'YelpCamp/mkvuydtjjboosx8qbdde'
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772143582/YelpCamp/jhcdlrxgwfchkdflpmvv.jpg',
+                filename: 'YelpCamp/jhcdlrxgwfchkdflpmvv'
             },
             {
             
-                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772098205/YelpCamp/xnmntmdzbzemglafgltr.jpg',
-                filename: 'YelpCamp/xnmntmdzbzemglafgltr'
+                url: 'https://res.cloudinary.com/dfh8iiael/image/upload/v1772135944/YelpCamp/jnwl3octgpci1fnja60c.jpg',
+                filename: 'YelpCamp/jnwl3octgpci1fnja60c'
             }]
         })
         console.log('MapTilerテスト結果:', geoData.features[0].geometry);
